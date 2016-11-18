@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<title>ElecPlants</title>
+
+	<meta charset="UTF-8">
+	<meta name="description" content="CodePlant" />
+	<meta name="author" content="RodriguesFAS" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="assets/js/jquery.min.js"></script>
+
+
+	<!-- Begin -->
+	<link rel="stylesheet" href="assets/css/bootstrap/bootstrap.min.css">
+	<link rel="stylesheet" href="assets/css/font-icons/entypo/css/entypo.css">
+	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic">
+	<link rel="stylesheet" href="assets/css/neon-core.css">
+	<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">
+	<!-- End -->
+
+	<script>
+	var socket = io.connect(); // faz a conexão com o socket.io do node.js
+
+	//recebe o valor "sensorLDR" enviado pelo node.js
+	socket.on('sensor_LDR', function(valor){
+		//escreve o "valor" que é passado na função no id #luz
+		$("#luz").text(valor + ' %');
+	});
+
+	// sensorHIGROMETRO
+	socket.on('sensorHIGROMETRO', function(hygrometer){
+		$("#sensorHIGROMETRO").text(hygrometer + ' %');
+	});
+
+	// status_Motor
+	socket.on('status_Motor', function(valor){
+		//console.log(valor);
+		$("#status_Motor").text(valor);
+
+	});
+
+	// sensorNivelAgua
+	socket.on('sensorNivel', function(valor){
+		//console.log(valor);
+		$("#sensorNivel").text(valor + ' mm');
+
+	});
+
+	$('#button').click(function(e){
+		//socket.emit('click');
+		//e.preventDefault();
+	});
+	</script>
+
+</head>
+
+<body onload="startTime()">
+
+	<div class="container">
+		<div align="center">
+			<img src="assets/img/logoevent2.png" height="120" alt="ExpObjetivo"/>
+		</div>
+		<br/>
+		<div class="row">
+
+			<div class="col-sm-4">
+				<div class="tile-stats tile-green">
+					<div class="icon"><i class="entypo-calendar"></i></div>
+					<div class="num" data-start="0" data-end="0%" data-postfix="" data-duration="1500" data-delay="0">
+						<span id="time"></span>
+					</div>
+					<h3>Time</h3>
+					<p>...</p>
+				</div>
+			</div>
+
+			<div class="col-sm-4">
+				<div class="tile-stats tile-yellow">
+					<div class="icon"><i class="entypo-adjust"></i></div>
+					<div class="num" data-start="0" data-end="0%" data-postfix="" data-duration="1500" data-delay="0">
+						<span id="luz">0%</span>
+					</div>
+					<h3>Luz do ambiente</h3>
+					<p>Sensor LDR.</p>
+				</div>
+			</div>
+
+			<div class="col-sm-4">
+				<div class="tile-stats tile-blue">
+					<div class="icon"><i class="entypo-leaf"></i></div>
+					<div class="num" data-start="0" data-end="0%" data-postfix="" data-duration="1500" data-delay="600">
+						<span id="sensorHIGROMETRO">0%</span>
+					</div>
+					<h3>Umidade do Solo</h3>
+					<p>Sensor Higrômetro.</p>
+				</div>
+			</div>
+
+			<div class="col-sm-4">
+				<div class="tile-stats tile-aqua">
+					<div class="icon"><i class="entypo-droplet"></i></div>
+					<div class="num" data-start="0" data-end="0mm" data-postfix="" data-duration="1500" data-delay="1200">
+						<span id="sensorNivel">0mm</span>
+					</div>
+					<h3>Água do reservatório</h3>
+					<p>Sensor de nível de água.</p>
+				</div>
+			</div>
+
+			<div class="col-sm-4">
+				<div class="tile-stats tile-red">
+					<div class="icon"><i class="entypo-flash"></i></div>
+					<div class="num" data-start="0" data-end="ºC" data-postfix="" data-duration="1500" data-delay="1800">
+						<span id="status_Motor">OFF</span>
+					</div>
+					<h3>Status Motor.</h3>
+					<p>Módulo relé.</p>
+				</div>
+			</div>
+
+			<!--div class="col-sm-3">
+			<div class="tile-stats tile-red">
+			<div class="icon"><i class="entypo-thermometer"></i></div>
+			<div class="num" data-start="0" data-end="ºC" data-postfix="" data-duration="1500" data-delay="1800">
+			<span id="sensorLM35">ºC</span>
+		</div>
+		<h3>Temperatura do solo</h3>
+		<p>Sensor de temperatura.</p>
+	</div>
+</div-->
+
+</div>
+</div>
+
+<div>
+	<div class="tile-stats tile-purple">
+		<div class="icon"><i class="entypo-feather"></i></div>
+		<div class="num" data-start="0" data-end="ºC" data-postfix="" data-duration="1500" data-delay="1800">
+			<span id="status_Motor">Projeto ElecPlants</span>
+		</div>
+		<h3>
+			<b>Orientador:</b> Prof. Alex, Assis e Bethovem.<br/>
+			<b>Série: </b> 9º "A"<br/>
+			<b>Equipe: </b>
+		</h3>
+		<footer>
+			<div>
+				<p align="center">© ElecPlants | EXPOBJETIVO 2016 <3.</p>
+			</div>
+		</footer>
+	</div>
+</div>
+
+
+<script>
+function startTime()
+{
+	var today = new Date();
+	var h = today.getHours();
+	var m = today.getMinutes();
+	var s = today.getSeconds();
+	// add a zero in front of numbers<10
+	m = checkTime(m);
+	s = checkTime(s);
+	document.getElementById('time').innerHTML = h+":"+m+":"+s;
+	t = setTimeout(function(){startTime()},500);
+}
+
+function checkTime(i)
+{
+	if (i<10)
+	{
+		i="0" + i;
+	}
+	return i;
+}
+</script>
+
+</body>
+</html>

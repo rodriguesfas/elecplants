@@ -21,10 +21,10 @@
     "url": "https://github.com/ClubeDosGeeksCoding/CodePlants/issues"
   },
   "homepage": "https://github.com/ClubeDosGeeksCoding/CodePlants#readme",
-  "dependencies":{
-    "express" : "latest",
-    "johnny-five" : "latest",
-    "socket.io" : "latest",
-    "serialport" : "latest"
+  "dependencies": {
+    "express": "latest",
+    "johnny-five": "latest",
+    "socket.io": "latest",
+    "serialport": "latest"
   }
 }

@@ -29,6 +29,7 @@ var Fn = five.Fn; //Define uma lib do johnny-five
 var arduino = new five.Board();
 
 var hygrometer = 0;
+var ldr_res = 0;
 
 /**
 * arduino.on -
@@ -51,7 +52,7 @@ arduino.on('ready', function(){
  * lines: number of lines, defaults to 2
  * dots: matrix dimensions, defaults to "5x8"
  */
-  var lcd = new five.LCD({
+ var lcd = new five.LCD({
     // LCD pin name  RS  EN  DB4 DB5 DB6 DB7
     // Arduino pin # 7    8   9   10  11  12
     pins: [7, 8, 9, 10, 11, 12],
@@ -77,8 +78,7 @@ arduino.on('ready', function(){
 
   this.wait(3000, function() {
     //lcd.clear().cursor(0, 0).print("I :check::heart: 2 :duck: :)");
-    lcd.clear().cursor(0, 0).print("Umidade: " + hygrometer);
-    lcd.clear().cursor(1, 0).print("Luz: " + hygrometer);
+    lcdShow(lcd);
   });
 
   this.repl.inject({
@@ -91,8 +91,8 @@ arduino.on('ready', function(){
    * relay.on();
    * relay.off();
    */
-  var relay = new five.Relay(5);
-  this.repl.inject({
+   var relay = new five.Relay(5);
+   this.repl.inject({
     relay: relay
   });
 
@@ -106,25 +106,29 @@ arduino.on('ready', function(){
     var valor = Fn.map(Math.round(this.value), 1023, 0, 0, 100);
     //console.log(valor);
     io.emit('sensor_LDR', valor);
+    ldr_res = valor;
+    // lcdShow(lcd);
   });
 
   /**
    * sensorHIGROMETRO
    * Math.round() retorna o numero inteiro mais proximo
    */
-  sensorHIGROMETRO.on('change', function(){
+   sensorHIGROMETRO.on('change', function(){
     // mapea valores lidos dos sensror.
-    var hygrometer = Fn.map(Math.round(this.value), 1023, 0, 0, 100);
+    hygrometer = Fn.map(Math.round(this.value), 1023, 0, 0, 100);
+
+    // lcdShow(lcd);
 
     //controla erro dos valores.
     if(hygrometer > 100) hygrometer = 100;
     if((hygrometer <= 0) || (hygrometer <= 10)) hygrometer = 0;
 
     //acionamento do motor
-    if(hygrometer >= 90){ //se o solo estiver com umidade >= a 70% desliga motor.
+    if(hygrometer >= 60){ //se o solo estiver com umidade >= a 70% desliga motor.
       relay.off();
       io.emit('status_Motor', "OFF"); //envia 0 para a pag. web
-    }else if(hygrometer < 30){//se o solo estiver com umidade < 30% liga o motor.
+    }else if(hygrometer < 40){//se o solo estiver com umidade < 30% liga o motor.
       relay.on();
       io.emit('status_Motor', "ON"); //envia 1 para a pag. web
     }
@@ -137,7 +141,7 @@ arduino.on('ready', function(){
    * sensorNivel
    * verifica o nível de agua no reservatório da bomba de d'água.
    */
-  sensorNivel.on('change', function(){
+   sensorNivel.on('change', function(){
     var nivel = Fn.map(Math.round(this.value), 1023, 0, 0, 100);
     //controla erro dos valores.
     if(nivel > 100) nivel = 100;
@@ -147,7 +151,7 @@ arduino.on('ready', function(){
   });
 
 
-});
+ });
 
 
 /**
@@ -166,3 +170,11 @@ http.listen(4000, function(){
   console.log("Para sair Ctrl+C"); //comando para Off-line servidor.
   exec('start http://localhost:4000');//start servidor.
 });
+
+function lcdShow(lcd){
+  setInterval(function(){
+      lcd.clear().cursor(0, 0).print("Umidade: " + hygrometer);
+      lcd.cursor(1, 0).print("Luz: " + ldr_res);  
+  },1000)
+  
+}

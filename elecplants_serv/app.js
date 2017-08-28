@@ -126,10 +126,10 @@ arduino.on('ready', function(){
 
     //acionamento do motor
     if(hygrometer >= 60){ //se o solo estiver com umidade >= a 70% desliga motor.
-      relay.off();
+      relay.on();
       io.emit('status_Motor', "OFF"); //envia 0 para a pag. web
     }else if(hygrometer < 40){//se o solo estiver com umidade < 30% liga o motor.
-      relay.on();
+      relay.off();
       io.emit('status_Motor', "ON"); //envia 1 para a pag. web
     }
 
